@@ -5,6 +5,7 @@ import DockerContainersStatus from './components/DockerContainersStatus';
 import './style/global.css';
 import logo from './assets/images/COTW_logo.png';
 import SystemStatus from './components/SystemStatus';
+import ServiceShortcuts from './components/ServiceShortcuts';
 
 export default function App() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -44,11 +45,20 @@ export default function App() {
         </header>
 
           <div className="p-8">
-            <h1 className="mb-[12px]">SYSTEM</h1>
-            <SystemStatus/>
-            <div className='h-[32px]'/>
-            <h1 className="mb-[12px]">CONTAINERS</h1>
-            <DockerContainersStatus/>
+            <>
+              <h1 className="mb-[12px]">SERVICES</h1>
+              <ServiceShortcuts/>
+            </>
+              <div className='h-[84px]'/>
+            <>
+              <h1 className="mb-[12px]">SYSTEM</h1>
+              <SystemStatus/>
+            </>
+              <div className='h-[64px]'/>
+            <>
+              <h1 className="mb-[12px]">CONTAINERS</h1>
+              <DockerContainersStatus/>
+            </>
             <div className='h-[128px]'/>
         </div> 
       </div>
@@ -59,7 +69,7 @@ export default function App() {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HeroUIProvider>
-      <main className="dark text-foreground bg-background flex flex-col items-center justify-center min-h-screen"> 
+      <main className="dark text-foreground bg-[#090909] flex flex-col items-center justify-center min-h-screen"> 
         <App/> 
       </main>
     </HeroUIProvider>
