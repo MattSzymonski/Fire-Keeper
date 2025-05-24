@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  campfire:
+    domainname: campfire-on-the-wall
+    restart: unless-stopped
+    build:
+      context: .                  # Project root
+      dockerfile: Dockerfile      # Shared Dockerfile
+    ports:
+      - "5173:5173"               # Frontend (static if built)
+      - "3001:3001"               # Backend
+    environment:
+      - NODE_ENV=development
+    volumes:
+      # To develop and enable hot reload
+      - ./frontend:/app/frontend
+      - ./backend:/app/backend
+      - /app/frontend/node_modules
+      - /app/backend/node_modules
+      # To gather data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+      - /etc/hostname:/host/etc/hostname:ro
+    networks:
+      hist0r-cloud-net:
+        ipv4_address: 10.1.0.177
+networks:
+  hist0r-cloud-net:
+    name: hist0r-cloud-net
+    external: true

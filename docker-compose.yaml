@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  campfire:
+    container_name: fire-keeper
+    domainname: campfire-on-the-wall
+    restart: unless-stopped
+    build:
+      context: .                  # Project root
+      dockerfile: Dockerfile      # Shared Dockerfile
+    ports:
+      - "5173:5173"               # Frontend (static if built)
+    environment:
+      - NODE_ENV=production
+    volumes:
+      # To gather data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/host/proc:ro
+      - /etc/hostname:/host/etc/hostname:ro
+    networks:
+      hist0r-cloud-net:
+        ipv4_address: 10.1.0.177
+networks:
+  hist0r-cloud-net:
+    name: hist0r-cloud-net
+    external: true

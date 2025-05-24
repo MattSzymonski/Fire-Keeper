@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+@plugin './HeroStyle.ts';
+@source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Wrap with layer components to make styles available in Tailwind responsive design (sm: md: lg:)*/
+@layer components {
+  .horizontal-line {
+    @apply h-[41px] bg-[#ff0000] my-4;
+  }
+
+  p {
+    @apply font-normal text-small text-default-foreground ;
+  }
+}
+
+body {
+  background-color: #000;
+  margin: 0;
+  padding: 0;
+  /* display: flex; */
+  width: 100%;
+  justify-content: center;
+  height: 100vh;
+  font-family: 'inter', sans-serif;
+}
+
+.centered-content {
+  text-align: center;
+  padding: 60px;
+}
+
+h1 {
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+h2 {
+  color: #ffffff;
+  font-size: 24px;
+}
+
+.spacer {
+  height: 14px;
+}
+
+.back-button {
+  background-color: #2c2c2c;
+  color: #ccc;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 3px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.back-button:hover {
+  background-color: #252525;
+}
+
+.skewed {
+  transform: rotate(15deg) skew(292deg, 36deg) rotate(340deg);
+}
+
+@keyframes animate-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse {
+  animation: animate-pulse 0.1s ease-in-out infinite;
+  animation-duration: 120ms !important;
+}
