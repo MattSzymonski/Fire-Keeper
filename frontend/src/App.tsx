@@ -6,6 +6,7 @@ import './style/global.css';
 import logo from './assets/images/COTW_logo.png';
 import SystemStatus from './components/SystemStatus';
 import ServiceShortcuts from './components/ServiceShortcuts';
+import PerspectiveCard from './components/PerspectiveCard';
 
 export default function App() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -27,39 +28,36 @@ export default function App() {
       className={`mx-[50px] w-full md:w-[700px] ${overflowing ? 'mt-[164px]' : ''}`}
     >
       <div className={`${overflowing === null ? "opacity-0" : ""}`}>
-        <header
-          className="fixed top-0 left-0 w-full z-50 flex items-center px-4 py-2"
-          style={{ minHeight: '120px' }}
-        >
-          <a
-            href="https://campfire-on-the-wall.com"
-            rel="noopener noreferrer"
-            className="cursor-pointer hover:animate-pulse mr-4"
-          >
-            <img
-              src={logo}
-              alt="COTW Logo"
-              style={{ height: '80px', width: 'auto', objectFit: 'contain' }}
-            />
-          </a>
-        </header>
+      <header 
+        className=
+        {`
+          fixed top-0 left-0 w-full z-50 py-1 
+          flex justify-center lg:justify-start
+          lg:p-[16px] 
+          bg-[rgba(9,9,9,1)] lg:bg-[rgba(9,9,9,0)]
+        `}
+      >
+        <a href="https://campfire-on-the-wall.com" rel="noopener noreferrer" className="cursor-pointer">
+          <PerspectiveCard imagePath={logo} style={ "w-[80px] sm:w-[100px] lg:w-[120px]"} />
+        </a>
+      </header> 
 
-          <div className="p-8">
-            <>
-              <h1 className="mb-[12px]">SERVICES</h1>
-              <ServiceShortcuts/>
-            </>
-              <div className='h-[84px]'/>
-            <>
-              <h1 className="mb-[12px]">SYSTEM</h1>
-              <SystemStatus/>
-            </>
-              <div className='h-[64px]'/>
-            <>
-              <h1 className="mb-[12px]">CONTAINERS</h1>
-              <DockerContainersStatus/>
-            </>
-            <div className='h-[128px]'/>
+        <div className="px-6">
+          <>
+            <h1 className="mb-[12px]">SERVICES</h1>
+            <ServiceShortcuts/>
+          </>
+            <div className='h-[84px]'/>
+          <>
+            <h1 className="mb-[12px]">SYSTEM</h1>
+            <SystemStatus/>
+          </>
+            <div className='h-[64px]'/>
+          <>
+            <h1 className="mb-[12px]">CONTAINERS</h1>
+            <DockerContainersStatus/>
+          </>
+          <div className='h-[128px]'/>
         </div> 
       </div>
     </div>

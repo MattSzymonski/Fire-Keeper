@@ -115,8 +115,8 @@ export default function DockerContainersStatus() {
               {(columnKey) => (
               <TableCell>
               {columnKey === "status" ? (
-                <div className="flex items-center gap-2">
-                  <span className={`w-2.5 h-2.5 rounded-full ${getStatusColor(item.status)}`}/>
+                <div className="flex items-center gap-2" >
+                  <span className={`min-w-2.5 min-h-2.5 rounded-full ${getStatusColor(item.status)}`}/>
                   {item.status}
                 </div>
               ) : (
