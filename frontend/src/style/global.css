@@ -11,7 +11,7 @@
   }
 
   p {
-    @apply font-normal text-small text-default-foreground ;
+    @apply font-normal text-small text-default-foreground;
   }
 }
 

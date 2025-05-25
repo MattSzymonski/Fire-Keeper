@@ -1,6 +1,6 @@
 import { StrictMode, useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Calendar, HeroUIProvider } from '@heroui/react';
+import { HeroUIProvider } from '@heroui/react';
 import DockerContainersStatus from './components/DockerContainersStatus';
 import './style/global.css';
 import logo from './assets/images/COTW_logo.png';

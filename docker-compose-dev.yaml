@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     build:
       context: .                  # Project root
-      dockerfile: Dockerfile      # Shared Dockerfile
+      dockerfile: Dockerfile.dev      # Shared Dockerfile
     ports:
       - "5173:5173"               # Frontend (static if built)
       - "3001:3001"               # Backend

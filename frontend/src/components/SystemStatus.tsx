@@ -19,14 +19,10 @@ type SystemStatus = {
   };
 };
 
-const URL = "https://campfire-on-the-wall.com";
-const IP = "89.79.36.66";
-
-
 export default function SystemStatus() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [lastUpdateTime, setLastUpdateTime] = useState<string>("-");
   const [isCpuLoadTooltipOpen, setIsCpuLoadTooltipOpen] = React.useState(false);
   const [ipPingStatus, setIpPingStatus] = useState<"Online" | "Offline" | "Checking">("Checking");
@@ -44,15 +40,9 @@ export default function SystemStatus() {
 
   const pingIp = async () => {
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2000);
-      await fetch(IP, {
-        method: "HEAD",
-        mode: "no-cors",
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-      setIpPingStatus("Online");
+      const res = await fetch("/api/ping-ip");
+      const { status } = await res.json();
+      setIpPingStatus(status === "Online" ? "Online" : "Offline");
     } catch {
       setIpPingStatus("Offline");
     }
@@ -62,7 +52,7 @@ export default function SystemStatus() {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 2000);
-      await fetch(URL, {
+      await fetch("https://campfire-on-the-wall.com", {
         method: "HEAD",
         mode: "no-cors",
         signal: controller.signal,
@@ -110,10 +100,6 @@ export default function SystemStatus() {
     );
   }
 
-  if (error || !status) {
-    return <p className="text-red-500 text-center mt-4">Error: {error}</p>;
-  }
-
   return (
     <div>
       <div className="p-[28px] bg-content1 rounded-large shadow-small w-full space-y-3">
@@ -127,11 +113,11 @@ export default function SystemStatus() {
         </div>
         <div className="flex justify-between">
           <p>Uptime:</p>
-          <p>{status.uptime}</p>
+          <p>{status ? status.uptime : "-"}</p>
         </div>
         <div className="flex justify-between">
           <p>RAM:</p>
-          <p>{status.ram.usedGB.toFixed(2)} / {status.ram.totalGB.toFixed(2)} GB</p>
+          <p>{status ? status.ram.usedGB.toFixed(2) : "-"} / {status ? status.ram.totalGB.toFixed(2) : "-"} GB</p>
         </div>
         
         <div className="flex justify-between">
@@ -147,9 +133,9 @@ export default function SystemStatus() {
             onOpenChange={(open) => setIsCpuLoadTooltipOpen(open)}
           >
             <div className={`${isCpuLoadTooltipOpen ? "bg-content2" : "bg-content1"} rounded-large space-y-[2px] flex flex-col justify-between`}>
-              <p>{status.cpu.load1.toFixed(2)} / {status.cpu.coreCount} cores ({status.cpu.usagePercent1.toFixed(1)}%)</p>
-              <p>{status.cpu.load5.toFixed(2)} / {status.cpu.coreCount} cores ({status.cpu.usagePercent5.toFixed(1)}%)</p>
-              <p>{status.cpu.load15.toFixed(2)} / {status.cpu.coreCount} cores ({status.cpu.usagePercent15.toFixed(1)}%)</p>
+              <p>{status ? status.cpu.load1.toFixed(2) : "-"} / {status ? status.cpu.coreCount : "-"} cores ({status ? status.cpu.usagePercent1.toFixed(1) : "-"}%)</p>
+              <p>{status ? status.cpu.load5.toFixed(2) : "-"} / {status ? status.cpu.coreCount : "-"} cores ({status ? status.cpu.usagePercent5.toFixed(1) : "-"}%)</p>
+              <p>{status ? status.cpu.load15.toFixed(2) : "-"} / {status ? status.cpu.coreCount : "-"} cores ({status ? status.cpu.usagePercent15.toFixed(1) : "-"}%)</p>
             </div>
           </Tooltip>
         </div>

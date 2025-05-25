@@ -1,22 +1,33 @@
-FROM node:20-alpine
+# ---------- Build Stage ----------
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
 # Install dependencies
-COPY frontend/package*.json ./frontend/
 COPY backend/package*.json ./backend/
-RUN cd frontend && npm install
-RUN cd backend && npm install
+COPY frontend/package*.json ./frontend/
+RUN cd backend && npm ci --omit=dev
+RUN cd frontend && npm ci --omit=dev
 
-# Copy the source code
-COPY frontend ./frontend
+# Copy source and build
 COPY backend ./backend
+COPY frontend ./frontend
+RUN cd backend && npm run build
+RUN cd frontend && npm run build
 
-RUN apk add --no-cache docker-cli
+# ---------- Runtime Stage ----------
+FROM node:20-alpine
 
-# Expose frontend and backend ports
-EXPOSE 5173 3001
+WORKDIR /app
 
-# Run based on NODE_ENV
-COPY entrypoint.sh /app/entrypoint.sh
+# Copy only built files and production dependencies
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/backend/node_modules ./backend/node_modules
+COPY --from=builder /app/frontend/dist ./frontend/dist
+COPY --from=builder /app/frontend/node_modules ./frontend/node_modules
+
+RUN apk add --no-cache docker-cli curl
+
+# Optional: scripts
+COPY entrypoint.sh ./entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -6,10 +6,10 @@ services:
     domainname: campfire-on-the-wall
     restart: unless-stopped
     build:
-      context: .                  # Project root
-      dockerfile: Dockerfile      # Shared Dockerfile
+      context: .                 
+      dockerfile: Dockerfile    
     ports:
-      - "5173:5173"               # Frontend (static if built)
+      - "3001:3001" 
     environment:
       - NODE_ENV=production
     volumes:

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableHeader,
@@ -7,7 +7,6 @@ import {
   TableRow,
   TableCell,
   getKeyValue,
-  Spinner,
 } from "@heroui/react";
 
 type ContainerInfo = {
@@ -59,6 +58,7 @@ export default function DockerContainersStatus() {
         setLastUpdateTime(formattedTime);
 
       } catch (err) {
+        console.error("Failed to load containers:", err);
         setError((err as Error).message || "Failed to load containers");
       } finally {
         setLoading(false);
@@ -96,11 +96,11 @@ export default function DockerContainersStatus() {
             )}
           </TableBody>
         </Table>
+        {lastUpdateTime ? <p className="text-tiny mt-2 text-right mr-1">Last update: {lastUpdateTime}</p> : null}
       </div>
     );
   }
 
-  if (error) return <p className="text-red-500">Error: {error}</p>;
   return (
     <div className="w-full max-w-3xl mx-auto">
       <Table aria-label="Docker Containers Status">
