@@ -10,18 +10,18 @@ It provides a centralized overview of your server's health and quick access to y
 Fire-Keeper can be installed as a Progressive Web App (PWA), allowing access to the dashboard even when the server is unreachable.
 
 ## Deployment
-### Clone the repository
+### 1. Clone the repository
 ```
 git clone https://github.com/MattSzymonski/Fire-Keeper.git
 cd Fire-Keeper
 ```
-### Configure the project
+### 2. Configure the project
 Before building the container, make the following adjustments:
 
 - Environment Variables  
 In docker-compose.yaml, update:
-    - VITE_SERVER_IP – your server's IP address
-    - VITE_SERVER_URL – your server's domain or public URL
+    - `VITE_SERVER_IP` – your server's IP address
+    - `VITE_SERVER_URL` – your server's domain or public URL
 - SSL Certificate  
 Update the SSL certificate paths to match the location of your certificate and key on the server.
 - Network Settings  
@@ -31,11 +31,11 @@ Replace the default favicon and logo in `./frontend/public/` with your own.
 - bService Shortcuts  
 Customize the shortcut buttons in `./frontend/src/components/ServicesShortcuts.tsx` to match the services you host.
 
-### Build and run the container
+### 3. Build and run the container
 ```
 docker compose -f up --build -d
 ```
-### Make it public
+### 4. Make it public
 Use your preferred web server or reverse proxy (like Nginx, Caddy, or Traefik) to expose the container to the internet.
 
 ## Development
