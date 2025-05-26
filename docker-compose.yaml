@@ -9,14 +9,17 @@ services:
       context: .                 
       dockerfile: Dockerfile    
     ports:
-      - "3001:3001" 
+      - 3001:3001
     environment:
       - NODE_ENV=production
+      - VITE_SERVER_IP=http://89.79.36.66/
+      - VITE_SERVER_URL=https://campfire-on-the-wall.com
     volumes:
       # To gather data
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/host/proc:ro
       - /etc/hostname:/host/etc/hostname:ro
+      - ../../../certificates/ssl/certificate_files/live/campfire-on-the-wall.com/fullchain.pem:/host/certificates/fullchain.pem:ro # SSL certificate path Adjust path as needed
     networks:
       hist0r-cloud-net:
         ipv4_address: 10.1.0.177

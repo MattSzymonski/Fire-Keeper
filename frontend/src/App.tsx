@@ -2,15 +2,30 @@ import { StrictMode, useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HeroUIProvider } from '@heroui/react';
 import DockerContainersStatus from './components/DockerContainersStatus';
-import './style/global.css';
-import logo from './assets/images/COTW_logo.png';
 import SystemStatus from './components/SystemStatus';
-import ServiceShortcuts from './components/ServiceShortcuts';
+import ServiceShortcuts from './components/ServicesShortcuts';
 import PerspectiveCard from './components/PerspectiveCard';
+const logo = '/images/COTW_logo.png';
+import './style/global.css';
 
 export default function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [overflowing, setOverflowing] = useState<null | boolean>(null);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isServerOnline, setIsServerOnline] = useState(true);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+  
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+  
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     const checkOverflow = () => {
@@ -23,34 +38,36 @@ export default function App() {
   }, []);
 
   return (
-    <div
-      ref={contentRef}
-      className={`mx-[50px] w-full md:w-[700px] ${overflowing ? 'mt-[164px]' : ''}`}
-    >
-      <div className={`${overflowing === null ? "opacity-0" : ""}`}>
-      <header 
-        className=
-        {`
-          fixed top-0 left-0 w-full z-50 py-1 
-          flex justify-center lg:justify-start
-          lg:p-[16px] 
-          bg-[rgba(9,9,9,1)] lg:bg-[rgba(9,9,9,0)]
-        `}
-      >
-        <a href="https://campfire-on-the-wall.com" rel="noopener noreferrer" className="cursor-pointer">
-          <PerspectiveCard imagePath={logo} style={ "w-[80px] sm:w-[100px] lg:w-[120px]"} />
-        </a>
-      </header> 
+    <div ref={contentRef} className={`mx-[50px] w-full md:w-[700px] ${overflowing ? 'mt-[164px]' : ''}`}>
+      {/* Offline Notification */}
+      {!isOnline && (
+        <div className="fixed inset-0 flex items-center justify-center z-[100] backdrop-blur-sm bg-black/30">
+          <div className="text-white text-[20px] px-[32px] py-4 shadow-lg bg-content1 rounded-large">
+            YOU ARE OFFLINE
+          </div>
+        </div>
+      )}
 
+      {/* Main Content */}
+      <div className={`${overflowing === null ? "opacity-0" : ""}`}>
+        <header 
+          className=
+          {`
+            fixed top-0 left-0 w-full z-50 pt-[2px]  flex justify-center lg:justify-start
+            lg:p-[16px] bg-[rgba(9,9,9,1)] lg:bg-[rgba(9, 9, 9, 0)]
+          `}
+        >
+        <PerspectiveCard imagePath={logo} style={ "w-[80px] sm:w-[100px] lg:w-[120px]"} />
+        </header> 
         <div className="px-6">
           <>
             <h1 className="mb-[12px]">SERVICES</h1>
-            <ServiceShortcuts/>
+            <ServiceShortcuts isDisabled={!isServerOnline}/>
           </>
             <div className='h-[84px]'/>
           <>
             <h1 className="mb-[12px]">SYSTEM</h1>
-            <SystemStatus/>
+            <SystemStatus setIsServerOnline={setIsServerOnline}/>
           </>
             <div className='h-[64px]'/>
           <>

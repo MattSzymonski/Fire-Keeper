@@ -17,12 +17,14 @@ type SystemStatus = {
     usagePercent5: number;
     usagePercent15: number;
   };
+  ssl: {
+    expiresAt: string | null;
+  };
 };
 
-export default function SystemStatus() {
+export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline?: (isOnline: boolean) => void } ) {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
   const [lastUpdateTime, setLastUpdateTime] = useState<string>("-");
   const [isCpuLoadTooltipOpen, setIsCpuLoadTooltipOpen] = React.useState(false);
   const [ipPingStatus, setIpPingStatus] = useState<"Online" | "Offline" | "Checking">("Checking");
@@ -40,27 +42,32 @@ export default function SystemStatus() {
 
   const pingIp = async () => {
     try {
-      const res = await fetch("/api/ping-ip");
-      const { status } = await res.json();
-      setIpPingStatus(status === "Online" ? "Online" : "Offline");
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2000); // 3s timeout
+      await fetch(import.meta.env.VITE_SERVER_IP!, { mode: "no-cors", signal: controller.signal });
+      clearTimeout(timeout);
+      setIpPingStatus("Online");
     } catch {
       setIpPingStatus("Offline");
     }
   };
 
   const pingDns = async () => {
+    if (!navigator.onLine) {
+      setDnsPingStatus("Offline");
+      return;
+    }
+
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 2000);
-      await fetch("https://campfire-on-the-wall.com", {
-        method: "HEAD",
-        mode: "no-cors",
-        signal: controller.signal,
-      });
+      await fetch(import.meta.env.VITE_SERVER_URL!, { method: "HEAD", mode: "no-cors", signal: controller.signal });
       clearTimeout(timeout);
       setDnsPingStatus("Online");
+      setIsServerOnline && setIsServerOnline(true);
     } catch {
       setDnsPingStatus("Offline");
+      setIsServerOnline && setIsServerOnline(false);
     }
   };
 
@@ -75,8 +82,8 @@ export default function SystemStatus() {
       const pad = (n: number) => n.toString().padStart(2, "0");
       const formattedTime = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
       setLastUpdateTime(formattedTime);
-    } catch (err) {
-      setError((err as Error).message || "Failed to load system status");
+    } catch {
+      
     } finally {
       setLoading(false);
     }
@@ -110,6 +117,10 @@ export default function SystemStatus() {
         <div className="flex justify-between">
           <p>DNS:</p>
           {StatusChip(dnsPingStatus)}
+        </div>
+        <div className="flex justify-between">
+          <p>SSL Expiration Date:</p>
+          <p>{status ? status.ssl.expiresAt : "-"}</p>
         </div>
         <div className="flex justify-between">
           <p>Uptime:</p>

@@ -1,16 +1,45 @@
-## Info
-FireKeeper is a lightweight, campfire-themed monitoring service designed to run alongside your home server — a.k.a. your "Campfire".
-It tracks system activity, provides real-time insights, and lets you interact with your server through a clean, extensible interface.
+# Fire Keeper
+Fire-Keeper is a sleek, responsive, and self-hosted server dashboard designed to run in a Docker container. 
+It provides a centralized overview of your server's health and quick access to your most-used self-hosted services.
 
-## Development
-- Run with `docker-compose -f docker-compose-dev.yaml up`. Add `--build` if needed.
-- Enter `http://localhost:5173/` on your machine you have connected to the server via SSH and it will display the page, crazy.  
-- There is hot reloading, however after restarting container you need to refresh page to make it work again.   
+## Features
+- 🧭 Service shortcuts: customizable buttons to open self-hosted tools and services (e.g. file manager, photo gallery, etc)
+- 📊 System monitoring: online/offline status, uptime, CPU load, RAM usage, SSL Ccertificate expiry
+- 🐳 Docker containers overview: Status of running/stopped containers
 
-In case of some issues with starting container try using: `docker-compose down --volumes --remove-orphans && docker system prune -af --volumes`
+Fire-Keeper can be installed as a Progressive Web App (PWA), allowing access to the dashboard even when the server is unreachable.
 
 ## Deployment
-- Run with `docker-compose -f docker-compose.yaml up`
+### Clone the repository
+```
+git clone https://github.com/MattSzymonski/Fire-Keeper.git
+cd Fire-Keeper
+```
+### Configure the project
+Before building the container, make the following adjustments:
 
-## Info 
-- Backend server port is not exposed as it is supposed to interacts only with frontend which is in the same container. 
+- Environment Variables  
+In docker-compose.yaml, update:
+    - VITE_SERVER_IP – your server's IP address
+    - VITE_SERVER_URL – your server's domain or public URL
+- SSL Certificate  
+Update the SSL certificate paths to match the location of your certificate and key on the server.
+- Network Settings  
+Modify the networks section in docker-compose.yaml if needed to fit your infrastructure.
+- Branding  
+Replace the default favicon and logo in `./frontend/public/` with your own.
+- bService Shortcuts  
+Customize the shortcut buttons in `./frontend/src/components/ServicesShortcuts.tsx` to match the services you host.
+
+### Build and run the container
+```
+docker compose -f up --build -d
+```
+### Make it public
+Use your preferred web server or reverse proxy (like Nginx, Caddy, or Traefik) to expose the container to the internet.
+
+## Development
+- Run with `docker-compose -f docker-compose-dev.yaml up --build`
+- Enter `http://localhost:5173/` to see the dashboard
+
+Both frontend and backend programs are hot-reloadable.
