@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import fs from 'fs/promises';
 import path from 'path';
 import { X509Certificate } from 'crypto';
+import { DateTime } from "luxon";
 
 const fastify = Fastify();
 fastify.register(cors, { origin: '*' });
@@ -80,25 +81,51 @@ fastify.get('/api/system-status', async (_req, reply) => {
       const certPath = '/host/certificates/fullchain.pem';
       const certPem = await fs.readFile(certPath, 'utf8');
       const cert = new X509Certificate(certPem);
+
+      // The cert.validTo is already a string, but ensure it's a valid Date
       const utcDate = new Date(cert.validTo);
 
-      // Convert to Europe/Berlin timezone and format as dd.MM.yyyy
-      const berlinDate = new Date(utcDate.toLocaleString('en-US', { timeZone: 'Europe/Berlin' }));
-      const day = String(berlinDate.getDate()).padStart(2, '0');
-      const month = String(berlinDate.getMonth() + 1).padStart(2, '0');
-      const year = berlinDate.getFullYear();
-      const formattedDate = `${day}.${month}.${year}`;
-
-      certExpiresAt = `${formattedDate}`;
+      // Return ISO 8601 UTC string
+      certExpiresAt = utcDate.toISOString();
     } catch (e) {
       certExpiresAt = null; // Could not read or parse certificate
+    }
+
+    // Backup status
+    let latestBackupDate: string | null = null;
+    try {
+      const backupDir = '/host/backup'; // Read-only mount
+      const files = await fs.readdir(backupDir);
+
+      // Escape prefix for regex
+      const escapedPrefix = process.env.BACKUP_FILE_PREFIX!.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
+      const backupRegex = new RegExp(`^${escapedPrefix}(\\d{2}-\\d{2}-\\d{4}_\\d{2}-\\d{2}-\\d{2})\\.tar\\.zst$`);
+
+      const backupFiles = files
+        .filter(f => backupRegex.test(f))
+        .sort()
+        .reverse();
+
+      if (backupFiles.length > 0) {
+        const latest = backupFiles[0];
+        const match = latest.match(backupRegex);
+        if (match) {
+          const [day, month, year, hour, min, sec] = match[1].split(/[-_]/);
+          const isoString = `${year}-${month}-${day}T${hour}:${min}:${sec}`;
+          const utc = DateTime.fromISO(isoString, { zone: "Europe/Berlin" }).toUTC().toISO(); // Convert CET to UTC
+          latestBackupDate = utc;
+        }
+      }
+    } catch (e: any) {
+      latestBackupDate = null;
     }
 
     reply.send({
       uptime,
       ram: { totalGB: toGB(memTotal), usedGB: toGB(used), freeGB: toGB(memFree) },
       cpu,
-      ssl: { expiresAt: certExpiresAt }
+      ssl: { expiresAt: certExpiresAt },
+      backup: { latestDate: latestBackupDate }
     });
   } catch (err: any) {
     reply.code(500).send({ error: err.stderr || err.message });

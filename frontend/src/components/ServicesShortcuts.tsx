@@ -33,8 +33,6 @@ function DelayedButton({
 }
 
 export default function ServicesShortcuts( { isDisabled }: { isDisabled?: boolean }) {
-useEffect(() => { console.log("ServicesShortcuts component loaded" + isDisabled);}, []);
-
   return (
     <div className="flex gap-[28px] flex-wrap">
       <DelayedButton

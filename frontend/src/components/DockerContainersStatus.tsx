@@ -34,8 +34,6 @@ export default function DockerContainersStatus() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [lastUpdateTime, setLastUpdateTime] = useState<string>("-");
-
   useEffect(() => {
     const load = async () => {
       try {
@@ -50,13 +48,6 @@ export default function DockerContainersStatus() {
           id: c.id,
         }));
         setRows(formatted);
-
-        // Format date as dd.mm.yyyy and time as hh:mm
-        const now = new Date();
-        const pad = (n: number) => n.toString().padStart(2, "0");
-        const formattedTime = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        setLastUpdateTime(formattedTime);
-
       } catch (err) {
         console.error("Failed to load containers:", err);
         setError((err as Error).message || "Failed to load containers");
@@ -96,7 +87,6 @@ export default function DockerContainersStatus() {
             )}
           </TableBody>
         </Table>
-        {lastUpdateTime ? <p className="text-tiny mt-2 text-right mr-1">Last update: {lastUpdateTime}</p> : null}
       </div>
     );
   }
@@ -128,7 +118,6 @@ export default function DockerContainersStatus() {
           )}
         </TableBody>
       </Table>
-      {lastUpdateTime ? <p className="text-tiny mt-2 text-right mr-1">Last update: {lastUpdateTime}</p> : null}
     </div>
   );
 }

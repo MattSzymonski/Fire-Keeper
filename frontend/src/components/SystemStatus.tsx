@@ -20,12 +20,14 @@ type SystemStatus = {
   ssl: {
     expiresAt: string | null;
   };
+  backup: {
+    latestDate: string | null;
+  };
 };
 
 export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline?: (isOnline: boolean) => void } ) {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
-  const [lastUpdateTime, setLastUpdateTime] = useState<string>("-");
   const [isCpuLoadTooltipOpen, setIsCpuLoadTooltipOpen] = React.useState(false);
   const [ipPingStatus, setIpPingStatus] = useState<"Online" | "Offline" | "Checking">("Checking");
   const [dnsPingStatus, setDnsPingStatus] = useState<"Online" | "Offline" | "Checking">("Checking");
@@ -77,11 +79,6 @@ export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setStatus(data);
-
-      const now = new Date();
-      const pad = (n: number) => n.toString().padStart(2, "0");
-      const formattedTime = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      setLastUpdateTime(formattedTime);
     } catch {
       
     } finally {
@@ -107,6 +104,28 @@ export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline
     );
   }
 
+  const FormattedDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
+    const year = date.getFullYear();
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+
+    return `${day}.${month}.${year} ${hour}:${minute}`;
+  }
+
+  const dateColor = (dateString: string) => { 
+    const date = new Date(dateString);
+    const now = new Date();
+    const timeDiff = now.getTime() - date.getTime();
+    const diffDays = Math.floor(timeDiff / (1000 * 3600 * 24));
+    if (diffDays > 7) {
+      return "text-[hsl(var(--heroui-danger))]";
+    }
+    return "";
+  }
+
   return (
     <div>
       <div className="p-[28px] bg-content1 rounded-large shadow-small w-full space-y-3">
@@ -120,11 +139,27 @@ export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline
         </div>
         <div className="flex justify-between">
           <p>SSL Expiration Date:</p>
-          <p>{status ? status.ssl.expiresAt : "-"}</p>
+          {status ? (status.ssl.expiresAt ? 
+            <p>{FormattedDate(status.ssl.expiresAt)}</p>
+            : 
+            <p className="text-[hsl(var(--heroui-danger))]">No Certificate Found</p>) 
+            :
+            <p>-</p>
+          }
         </div>
         <div className="flex justify-between">
           <p>Uptime:</p>
           <p>{status ? status.uptime : "-"}</p>
+        </div>
+        <div className="flex justify-between">
+          <p>Latest Backup:</p>
+          {status ? (status.backup.latestDate ? 
+            <p className={`${dateColor(status.backup.latestDate)}`}>{FormattedDate(status.backup.latestDate)}</p> 
+            : 
+            <p className="text-[hsl(var(--heroui-danger))]">No Backup Found</p>) 
+            : 
+            <p>-</p>
+          }
         </div>
         <div className="flex justify-between">
           <p>RAM:</p>
@@ -151,7 +186,6 @@ export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline
           </Tooltip>
         </div>
       </div>
-      {lastUpdateTime ? <p className="text-tiny mt-2 text-right mr-1">Last update: {lastUpdateTime}</p> : null}
     </div>
   );
 }

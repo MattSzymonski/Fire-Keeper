@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  campfire:
+  fire-keeper:
     domainname: campfire-on-the-wall
     restart: unless-stopped
     build:
@@ -14,16 +14,16 @@ services:
       - NODE_ENV=development
       - VITE_SERVER_IP=http://89.79.36.66/
       - VITE_SERVER_URL=https://campfire-on-the-wall.com
+      - BACKUP_FILE_PREFIX=cotw_backup_
     volumes:
       # To develop and enable hot reload
       - ./frontend:/app/frontend
       - ./backend:/app/backend
-      - /app/frontend/node_modules
-      - /app/backend/node_modules
       # To gather data
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/host/proc:ro
       - /etc/hostname:/host/etc/hostname:ro
+      - /backup:/host/backup:ro
       - ../../../certificates/ssl/certificate_files/live/campfire-on-the-wall.com/fullchain.pem:/host/certificates/fullchain.pem:ro # SSL certificate path Adjust path as needed
     networks:
       hist0r-cloud-net:

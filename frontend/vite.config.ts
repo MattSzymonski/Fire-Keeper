@@ -19,7 +19,21 @@ export default defineConfig({
         theme_color: '#090909',
         background_color: '#090909',
         display: 'standalone',
-        start_url: '/'
+        start_url: '/',
+        icons: [
+          {
+            src: '/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: '/icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          }
+        ]
       }
     })
   ],

@@ -13,6 +13,7 @@ export default function App() {
   const [overflowing, setOverflowing] = useState<null | boolean>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isServerOnline, setIsServerOnline] = useState(true);
+  const [lastUpdateTime, setLastUpdateTime] = useState<string>("-");
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -37,6 +38,13 @@ export default function App() {
     return () => window.removeEventListener('resize', checkOverflow);
   }, []);
 
+  useEffect(() => { 
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const formattedTime = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    setLastUpdateTime(formattedTime);
+  }, []);
+
   return (
     <div ref={contentRef} className={`mx-[50px] w-full md:w-[700px] ${overflowing ? 'mt-[164px]' : ''}`}>
       {/* Offline Notification */}
@@ -54,7 +62,7 @@ export default function App() {
           className=
           {`
             fixed top-0 left-0 w-full z-50 pt-[2px]  flex justify-center lg:justify-start
-            lg:p-[16px] bg-[rgba(9,9,9,1)] lg:bg-[rgba(9, 9, 9, 0)]
+            lg:p-[16px] bg-[#000000] lg:bg-[#ffffff00]
           `}
         >
         <PerspectiveCard imagePath={logo} style={ "w-[80px] sm:w-[100px] lg:w-[120px]"} />
@@ -75,6 +83,7 @@ export default function App() {
             <DockerContainersStatus/>
           </>
           <div className='h-[128px]'/>
+          {lastUpdateTime ? <p className="text-tiny mb-4 text-center">Last update: {lastUpdateTime}</p> : null}
         </div> 
       </div>
     </div>
