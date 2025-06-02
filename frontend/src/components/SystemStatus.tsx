@@ -20,9 +20,11 @@ type SystemStatus = {
   ssl: {
     expiresAt: string | null;
   };
-  backup: {
-    latestDate: string | null;
-  };
+  backups: {
+    name: string;
+    latestDate: string;
+    expirationDays: number;
+  }[];
 };
 
 export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline?: (isOnline: boolean) => void } ) {
@@ -115,12 +117,12 @@ export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline
     return `${day}.${month}.${year} ${hour}:${minute}`;
   }
 
-  const dateColor = (dateString: string) => { 
+  const dateColor = (dateString: string, expirationDays: number) => { 
     const date = new Date(dateString);
     const now = new Date();
     const timeDiff = now.getTime() - date.getTime();
     const diffDays = Math.floor(timeDiff / (1000 * 3600 * 24));
-    if (diffDays > 7) {
+    if (diffDays > expirationDays) {
       return "text-[hsl(var(--heroui-danger))]";
     }
     return "";
@@ -151,15 +153,19 @@ export default function SystemStatus( { setIsServerOnline }: { setIsServerOnline
           <p>Uptime:</p>
           <p>{status ? status.uptime : "-"}</p>
         </div>
-        <div className="flex justify-between">
-          <p>Latest Backup:</p>
-          {status ? (status.backup.latestDate ? 
-            <p className={`${dateColor(status.backup.latestDate)}`}>{FormattedDate(status.backup.latestDate)}</p> 
-            : 
-            <p className="text-[hsl(var(--heroui-danger))]">No Backup Found</p>) 
-            : 
-            <p>-</p>
-          }
+        <div className="flex justify-between items-start gap-4">
+          <p className="font-medium">Backups:</p>
+          <div className="flex flex-col items-end">
+            {status && status.backups.length > 0 ? (
+              status.backups.map((backup) => (
+                <p key={backup.name} className={dateColor(backup.latestDate, backup.expirationDays)}>
+                  {backup.name} - {FormattedDate(backup.latestDate)}
+                </p>
+              ))
+            ) : (
+              <p>No Backups Found</p>
+            )}
+          </div>
         </div>
         <div className="flex justify-between">
           <p>RAM:</p>

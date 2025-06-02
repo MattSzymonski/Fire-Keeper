@@ -45,6 +45,7 @@ export default function App() {
     setLastUpdateTime(formattedTime);
   }, []);
 
+
   return (
     <div ref={contentRef} className={`mx-[50px] w-full md:w-[700px] ${overflowing ? 'mt-[164px]' : ''}`}>
       {/* Offline Notification */}

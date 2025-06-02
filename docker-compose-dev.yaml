@@ -12,9 +12,9 @@ services:
       - 3001:3001
     environment:
       - NODE_ENV=development
-      - VITE_SERVER_IP=http://89.79.36.66/
+      - VITE_SERVER_IP=http://109.232.28.168/  
       - VITE_SERVER_URL=https://campfire-on-the-wall.com
-      - BACKUP_FILE_PREFIX=cotw_backup_
+      - BACKUP_FILE_PREFIX=cotw-backup_
     volumes:
       # To develop and enable hot reload
       - ./frontend:/app/frontend
@@ -23,12 +23,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc:/host/proc:ro
       - /etc/hostname:/host/etc/hostname:ro
-      - /backup:/host/backup:ro
+      - /backup/archives:/host/backup:ro
       - ../../../certificates/ssl/certificate_files/live/campfire-on-the-wall.com/fullchain.pem:/host/certificates/fullchain.pem:ro # SSL certificate path Adjust path as needed
     networks:
-      hist0r-cloud-net:
+      campfire-on-the-wall-net:
         ipv4_address: 10.1.0.177
 networks:
-  hist0r-cloud-net:
-    name: hist0r-cloud-net
+  campfire-on-the-wall-net:
+    name: campfire-on-the-wall-net
     external: true

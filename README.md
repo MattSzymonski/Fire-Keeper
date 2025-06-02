@@ -32,14 +32,14 @@ Replace the default favicon and logo in `./frontend/public/` with your own.
 Customize the shortcut buttons in `./frontend/src/components/ServicesShortcuts.tsx` to match the services you host.
 
 ### 3. Build and run the container
-```
-docker compose -f up --build -d
-```
+`docker compose -f up --build -d`
+
 ### 4. Make it public
 Use your preferred web server or reverse proxy (like Nginx, Caddy, or Traefik) to expose the container to the internet.
 
 ## Development
 - Run with `docker-compose -f docker-compose-dev.yaml up --build`
 - Enter `http://localhost:5173/` to see the dashboard
+- Enter `http://localhost:3001/api/<ENDPOINT>` to call backend
 
 Both frontend and backend programs are hot-reloadable.

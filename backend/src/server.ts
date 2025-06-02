@@ -92,32 +92,34 @@ fastify.get('/api/system-status', async (_req, reply) => {
     }
 
     // Backup status
-    let latestBackupDate: string | null = null;
+    let backups: { name: string; latestDate: string | null; expirationDays: number; }[];
     try {
       const backupDir = '/host/backup'; // Read-only mount
       const files = await fs.readdir(backupDir);
 
       // Escape prefix for regex
-      const escapedPrefix = process.env.BACKUP_FILE_PREFIX!.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
-      const backupRegex = new RegExp(`^${escapedPrefix}(\\d{2}-\\d{2}-\\d{4}_\\d{2}-\\d{2}-\\d{2})\\.tar\\.zst$`);
+      const prefix = process.env.BACKUP_FILE_PREFIX!;
 
-      const backupFiles = files
-        .filter(f => backupRegex.test(f))
-        .sort()
-        .reverse();
-
-      if (backupFiles.length > 0) {
-        const latest = backupFiles[0];
-        const match = latest.match(backupRegex);
-        if (match) {
-          const [day, month, year, hour, min, sec] = match[1].split(/[-_]/);
-          const isoString = `${year}-${month}-${day}T${hour}:${min}:${sec}`;
-          const utc = DateTime.fromISO(isoString, { zone: "Europe/Berlin" }).toUTC().toISO(); // Convert CET to UTC
-          latestBackupDate = utc;
-        }
-      }
-    } catch (e: any) {
-      latestBackupDate = null;
+      backups = files
+      .filter(f => f.startsWith(prefix))
+      .map(f => {
+        const parts = f.split('.');
+        const fileNameParts = parts[0].split('_');
+  
+        const datePart = fileNameParts.slice(-2).join('_');
+        const [day, month, year, hour, minute, second] = datePart.split(/[-_]/).map(Number);
+        const isoString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`;
+  
+        const latestDate = DateTime.fromISO(isoString, { zone: "Europe/Berlin" }).toUTC().toISO();
+  
+        const name = fileNameParts[1];
+        const expirationDays = name === "server-and-notes" ? 3 : 30;
+  
+        return { name, latestDate, expirationDays };
+      });
+    } catch (err) { 
+      backups = [];
+      console.error('Error reading backup directory:', err);
     }
 
     reply.send({
@@ -125,7 +127,7 @@ fastify.get('/api/system-status', async (_req, reply) => {
       ram: { totalGB: toGB(memTotal), usedGB: toGB(used), freeGB: toGB(memFree) },
       cpu,
       ssl: { expiresAt: certExpiresAt },
-      backup: { latestDate: latestBackupDate }
+      backups: backups
     });
   } catch (err: any) {
     reply.code(500).send({ error: err.stderr || err.message });
